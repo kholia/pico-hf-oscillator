@@ -7,13 +7,13 @@
 //
 //
 //  test.c - Simple tests of digital controlled radio freq oscillator.
-// 
+//
 //
 //  DESCRIPTION
 //
 //      The oscillator provides precise generation of any frequency ranging
 //  from 1 Hz to 33.333 MHz with tenth's of millihertz resolution (please note that
-//  this is relative resolution owing to the fact that the absolute accuracy of 
+//  this is relative resolution owing to the fact that the absolute accuracy of
 //  onboard crystal of pi pico is limited; the absoulte accuracy can be provided
 //  when using GPS reference option included).
 //      The DCO uses phase locked loop principle programmed in C and PIO asm.
@@ -45,7 +45,7 @@
 //      Raspberry Pi pico.
 //
 //  REVISION HISTORY
-// 
+//
 //      Rev 0.1   05 Nov 2023   Initial release
 //      Rev 0.2   18 Nov 2023
 //      Rev 1.0   10 Dec 2023   Improved frequency range (to ~33.333 MHz).
@@ -57,7 +57,7 @@
 //      MIT License (http://www.opensource.org/licenses/mit-license.php)
 //
 //  Copyright (c) 2023 by Roman Piksaykin
-//  
+//
 //  Permission is hereby granted, free of charge,to any person obtaining a copy
 //  of this software and associated documentation files (the Software), to deal
 //  in the Software without restriction,including without limitation the rights
@@ -77,14 +77,16 @@
 //  THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 #include <string.h>
-#include <stdlib.h>
+#include "pico/stdlib.h"
 #include <stdio.h>
 
 #include "defines.h"
+#include "pico.h"
 
 #include "piodco/piodco.h"
-#include "build/dco2.pio.h"
+#include "dco2.pio.h"
 #include "hardware/vreg.h"
+#include "hardware/clocks.h"
 #include "pico/multicore.h"
 #include "pico/stdio/driver.h"
 
@@ -103,7 +105,7 @@
 
 PioDco DCO; /* External in order to access in both cores. */
 
-int main() 
+int main()
 {
     const uint32_t clkhz = PLL_SYS_MHZ * 1000000L;
     set_sys_clock_khz(clkhz / 1000L, true);
@@ -135,7 +137,7 @@ int main()
         int chr = getchar_timeout_us(100);//getchar();
         printf("%d %c\n", chr, (char)chr);
     }
-  
+
     gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
 
@@ -150,7 +152,7 @@ int main()
     //SpinnerGPSreferenceTest();
 }
 
-/* This is the code of dedicated core. 
+/* This is the code of dedicated core.
    We deal with extremely precise real-time task. */
 void core1_entry()
 {
@@ -297,7 +299,7 @@ void RAM (SpinnerGPSreferenceTest)(void)
         gpio_put(PICO_DEFAULT_LED_PIN, 1);
         sleep_ms(2500);
 
-        i32_compensation_millis = 
+        i32_compensation_millis =
             PioDCOGetFreqShiftMilliHertz(&DCO, (uint64_t)(ku32_freq * 1000LL));
 
         gpio_put(PICO_DEFAULT_LED_PIN, 0);

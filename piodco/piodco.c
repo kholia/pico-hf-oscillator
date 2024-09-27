@@ -72,7 +72,7 @@
 #include <string.h>
 #include "../lib/assert.h"
 
-#include "build/dco2.pio.h"
+#include "dco2.pio.h"
 
 volatile int32_t si32precise_cycles;
 
