@@ -7,13 +7,13 @@
 //
 //
 //  piodco.c - Digital controlled radio freq oscillator based on PIO.
-// 
+//
 //
 //  DESCRIPTION
 //
 //      The oscillator provides precise generation of any frequency ranging
 //  from 1 Hz to 33.333 MHz with tenth's of millihertz resolution (please note that
-//  this is relative resolution owing to the fact that the absolute accuracy of 
+//  this is relative resolution owing to the fact that the absolute accuracy of
 //  onboard crystal of pi pico is limited; the absoulte accuracy can be provided
 //  when using GPS reference option included).
 //      The DCO uses phase locked loop principle programmed in C and PIO asm.
@@ -36,7 +36,7 @@
 //      Raspberry Pi pico.
 //
 //  REVISION HISTORY
-// 
+//
 //      Rev 0.1   05 Nov 2023   Initial release
 //      Rev 0.2   18 Nov 2023
 //      Rev 1.0   10 Dec 2023   Improved frequency range (to ~33.333 MHz).
@@ -48,7 +48,7 @@
 //      MIT License (http://www.opensource.org/licenses/mit-license.php)
 //
 //  Copyright (c) 2023 by Roman Piksaykin
-//  
+//
 //  Permission is hereby granted, free of charge,to any person obtaining a copy
 //  of this software and associated documentation files (the Software), to deal
 //  in the Software without restriction,including without limitation the rights
@@ -72,7 +72,7 @@
 #include <string.h>
 #include "../lib/assert.h"
 
-#include "build/dco2.pio.h"
+#include "dco2.pio.h"
 
 volatile int32_t si32precise_cycles;
 
@@ -103,7 +103,7 @@ int PioDCOInit(PioDco *pdco, int gpio, int cpuclkhz)
     sm_config_set_out_shift(&pdco->_pio_sm, true, true, 32);           // Autopull.
     sm_config_set_fifo_join(&pdco->_pio_sm, PIO_FIFO_JOIN_TX);
     sm_config_set_set_pins(&pdco->_pio_sm, pdco->_gpio, 1);
-    
+
     pio_sm_init(pdco->_pio, pdco->_ism, pdco->_offset, &pdco->_pio_sm);
 
     return 0;
@@ -120,7 +120,7 @@ int PioDCOSetFreq(PioDco *pdco, uint32_t ui32_frq_hz, int32_t ui32_frq_millihz)
     assert_(pdco);
     assert(pdco->_clkfreq_hz);
 
-    /* RPix: Calculate an accurate value of phase increment of the freq 
+    /* RPix: Calculate an accurate value of phase increment of the freq
        per 1 tick of CPU clock, here 2^24 is scaling coefficient. */
     const int64_t i64denominator = 2000LL * (int64_t)ui32_frq_hz + (int64_t)ui32_frq_millihz;
     pdco->_frq_cycles_per_pi = (int32_t)(((int64_t)pdco->_clkfreq_hz * (int64_t)(1<<24) * 1000LL
@@ -196,13 +196,13 @@ void RAM (PioDCOWorker2)(PioDco *pDCO)
     register uint sm = pDCO->_ism;
     register int32_t i32acc_error = 0;
     register uint32_t i32wc, i32reg;
-    
+
 LOOP:
     i32reg = si32precise_cycles;
     i32wc = (i32reg - i32acc_error) >> 24U;
     pio_sm_put_blocking(pio, sm, i32wc);
     i32acc_error += (i32wc << 24U) - i32reg;
-    
+
     goto LOOP;
 }
 
@@ -233,7 +233,7 @@ void RAM (PioDCOWorker)(PioDco *pDCO)
             const int32_t i32wc = iSAR32(i32reg - i32acc_error + (1<<23), 24);
 
             /* RPix: Calculate the difference betwixt calculated value scaled to
-               fine resolution back and precise value of DCO cycles per CPU CLK cycle. 
+               fine resolution back and precise value of DCO cycles per CPU CLK cycle.
                This forms a phase locked loop which provides precise freq */
             i32acc_error += (i32wc<<24) - i32reg;
 
