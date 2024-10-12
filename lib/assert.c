@@ -7,7 +7,7 @@
 //
 //
 //  assert.c - Assertion functions for Raspberry Pi pico which use LED.
-// 
+//
 //
 //  DESCRIPTION
 //
@@ -18,7 +18,7 @@
 //      Raspberry Pi pico.
 //
 //  REVISION HISTORY
-// 
+//
 //      Rev 1.0   25 Sep 2022
 //  Production release.
 //
@@ -26,7 +26,7 @@
 //      MIT License (http://www.opensource.org/licenses/mit-license.php)
 //
 //  Copyright (c) 2022 by Roman Piksaykin
-//  
+//
 //  Permission is hereby granted, free of charge,to any person obtaining a copy
 //  of this software and associated documentation files (the Software), to deal
 //  in the Software without restriction,including without limitation the rights
@@ -47,6 +47,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "assert.h"
 
+#include "pico/cyw43_arch.h"
+
+#define PICO_DEFAULT_LED_PIN CYW43_WL_GPIO_LED_PIN  // hack, doesn't work beyond compiling successfully ;)
+
 void assert_(bool val)
 {
     if(val)
@@ -59,9 +63,9 @@ void assert_(bool val)
 
     for(;;)
     {
-        gpio_put(PICO_DEFAULT_LED_PIN, 1);
+        cyw43_arch_gpio_put(PICO_DEFAULT_LED_PIN, 1);
         sleep_ms(50);
-        gpio_put(PICO_DEFAULT_LED_PIN, 0);
+        cyw43_arch_gpio_put(PICO_DEFAULT_LED_PIN, 0);
         sleep_ms(500);
     }
 }
@@ -80,9 +84,9 @@ void assert_checkpoint(bool val, int n_blink)
     {
         for(int i = 0; i < n_blink; ++i)
         {
-            gpio_put(PICO_DEFAULT_LED_PIN, 1);
+            cyw43_arch_gpio_put(PICO_DEFAULT_LED_PIN, 1);
             sleep_ms(50);
-            gpio_put(PICO_DEFAULT_LED_PIN, 0);
+            cyw43_arch_gpio_put(PICO_DEFAULT_LED_PIN, 0);
             sleep_ms(50);
         }
         sleep_ms(1000);

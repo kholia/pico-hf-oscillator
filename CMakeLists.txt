@@ -20,6 +20,8 @@ if (NOT DEFINED PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS)
     set(PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS 3000)
 endif()
 
+set(PICO_BOARD pico_w)
+
 # Initialize the SDK
 pico_sdk_init()
 
@@ -64,6 +66,7 @@ target_link_libraries(
         hardware_clocks
         hardware_pio
         hardware_uart
+	pico_cyw43_arch_lwip_threadsafe_background
         )
 
 pico_add_extra_outputs(pico-hf-oscillator-test)

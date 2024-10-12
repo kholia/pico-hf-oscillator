@@ -13,10 +13,10 @@
 //
 //      GPS time utilities for pico-hf-oscillator calculate a precise frequency
 //  shift between the local Pico oscillator and reference oscill. of GPS system.
-//  The value of the shift is used to correct generated frequency. The practical 
-//  precision of this solution depends on GPS receiver's time pulse stability, 
-//  as well as on quality of navigation solution of GPS receiver. 
-//  This quality can be estimated by GDOP and TDOP parameters received 
+//  The value of the shift is used to correct generated frequency. The practical
+//  precision of this solution depends on GPS receiver's time pulse stability,
+//  as well as on quality of navigation solution of GPS receiver.
+//  This quality can be estimated by GDOP and TDOP parameters received
 //  in NMEA-0183 message packet from GPS receiver.
 //      Owing to the meager frequency step in millihertz range, we obtain
 //  a quasi-analog precision frequency source (if the GPS navigation works OK).
@@ -29,7 +29,7 @@
 //      Raspberry Pi pico.
 //
 //  REVISION HISTORY
-// 
+//
 //      Rev 0.1   25 Nov 2023   Initial release
 //
 //  PROJECT PAGE
@@ -39,7 +39,7 @@
 //      MIT License (http://www.opensource.org/licenses/mit-license.php)
 //
 //  Copyright (c) 2023 by Roman Piksaykin
-//  
+//
 //  Permission is hereby granted, free of charge,to any person obtaining a copy
 //  of this software and associated documentation files (the Software), to deal
 //  in the Software without restriction,including without limitation the rights
@@ -59,6 +59,8 @@
 //  THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 #include "GPStime.h"
+
+#define PICO_DEFAULT_LED_PIN CYW43_WL_GPIO_LED_PIN
 
 static GPStimeContext *spGPStimeContext = NULL;
 static GPStimeData *spGPStimeData = NULL;
@@ -121,11 +123,11 @@ void GPStimeDestroy(GPStimeContext **pp)
 /// @brief The PPS interrupt service subroutine.
 /// @param  gpio The GPIO pin of Pico which is connected to PPS output of GPS rec.
 void RAM (GPStimePPScallback)(uint gpio, uint32_t events)
-{   
+{
     const uint64_t tm64 = GetUptime64();
     if(spGPStimeData)
     {
-        spGPStimeData->_u64_sysclk_pps_last = tm64;   
+        spGPStimeData->_u64_sysclk_pps_last = tm64;
         ++spGPStimeData->_ix_last;
         spGPStimeData->_ix_last %= eSlidingLen;
 
@@ -136,7 +138,7 @@ void RAM (GPStimePPScallback)(uint gpio, uint32_t events)
         {
             if(spGPStimeData->_u64_pps_period_1M)
             {
-                spGPStimeData->_u64_pps_period_1M += iSAR64((int64_t)eDtUpscale * dt_per_window 
+                spGPStimeData->_u64_pps_period_1M += iSAR64((int64_t)eDtUpscale * dt_per_window
                                                             - spGPStimeData->_u64_pps_period_1M + 2, 2);
                 spGPStimeData->_i32_freq_shift_ppb = (spGPStimeData->_u64_pps_period_1M
                                                       - (int64_t)eDtUpscale * eCLKperTimeMark * eSlidingLen
@@ -151,7 +153,7 @@ void RAM (GPStimePPScallback)(uint gpio, uint32_t events)
 #ifdef NOP
         const int64_t dt_1M = (dt_per_window + (eSlidingLen >> 1)) / eSlidingLen;
         const uint64_t tmp = (spGPStimeData->_u64_pps_period_1M + (eSlidingLen >> 1)) / eSlidingLen;
-        printf("%llu %lld %llu %lld\n", spGPStimeData->_u64_sysclk_pps_last, dt_1M, tmp, 
+        printf("%llu %lld %llu %lld\n", spGPStimeData->_u64_sysclk_pps_last, dt_1M, tmp,
                spGPStimeData->_i32_freq_shift_ppb);
 #endif
 
@@ -246,7 +248,7 @@ int GPStimeProcNMEAsentence(GPStimeContext *pg)
                 }
             }
         }
-        
+
         pg->_time_data._u8_is_solution_active = 'A' == prmc[u8ixcollector[1]];
 
         if(pg->_time_data._u8_is_solution_active)
@@ -282,7 +284,7 @@ int GPStimeProcNMEAsentence(GPStimeContext *pg)
             pg->_time_data._u64_sysclk_nmea_last = tm_fix;
         }
     }
-    
+
     return 0;
 }
 
