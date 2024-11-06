@@ -32,24 +32,6 @@
 //  digital modes.
 //      I appreciate any thoughts or comments on this matter.
 //
-//  TESTS LIST
-//
-//  SpinnerMFSKTest         - It generates a random sequence of 2-FSK stream.
-//  SpinnerSweepTest        - Frequency sweep test of 5 Hz step.
-//  SpinnerRTTYTest         - Random RTTY sequence test (170 Hz).
-//  SpinnerMilliHertzTest   - A test of millihertz resolution of freq.setting.
-//  SpinnerWide4FSKTest     - Some `wide` 4-FSK test (100 Hz per step, 400 Hz overall).
-//  SpinnerGPSreferenceTest - GPS receiver connection and working test.
-//
-//  PLATFORM
-//      Raspberry Pi pico.
-//
-//  REVISION HISTORY
-//
-//      Rev 0.1   05 Nov 2023   Initial release
-//      Rev 0.2   18 Nov 2023
-//      Rev 1.0   10 Dec 2023   Improved frequency range (to ~33.333 MHz).
-//
 //  PROJECT PAGE
 //      https://github.com/RPiks/pico-hf-oscillator
 //
@@ -76,6 +58,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
+
 #include <string.h>
 #include "pico/stdlib.h"
 #include <stdio.h>
@@ -83,8 +66,11 @@
 #include "defines.h"
 #include "pico.h"
 
-#include "piodco/piodco.h"
-#include "dco2.pio.h"
+extern "C" {
+  #include "piodco/piodco.h"
+  #include "dco2.pio.h"
+}
+
 #include "hardware/vreg.h"
 #include "hardware/clocks.h"
 #include "pico/multicore.h"
@@ -100,8 +86,13 @@
 
 #include "protos.h"
 
+#include "nco.h"
+#include "nco.pio.h"
+
 //#define GEN_FRQ_HZ 32333333L
-#define GEN_FRQ_HZ 28023000L
+// #define GEN_FRQ_HZ 28023000L
+// #define GEN_FRQ_HZ 14000000L
+#define GEN_FRQ_HZ 28074000L
 
 PioDco DCO; /* External in order to access in both cores. */
 
@@ -195,26 +186,6 @@ void put_morse_str(const char *str) {
   }
 }
 
-int main() {
-  const uint32_t clkhz = PLL_SYS_MHZ * 1000000L;
-  set_sys_clock_khz(clkhz / 1000L, true);
-
-  stdio_init_all();
-
-  gpio_init(PICO_DEFAULT_LED_PIN);
-  gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-
-  multicore_launch_core1(core1_entry);
-
-  gpio_init(PICO_DEFAULT_LED_PIN);
-  gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-
-  while (1) {
-    put_morse_str("CQ CQ CQ DE VU3CER TEST BEACON");
-    sleep_ms(1000);
-  }
-}
-
 /* This is the code of dedicated core.
    We deal with extremely precise real-time task. */
 void core1_entry() {
@@ -231,4 +202,49 @@ void core1_entry() {
 
   /* Run the main DCO algorithm. It spins forever. */
   PioDCOWorker2(&DCO);
+}
+
+int main() {
+  const uint32_t clkhz = PLL_SYS_MHZ * 1000000L;
+  // Choose which PIO instance to use (there are two instances)
+  PIO pio;
+  uint offset;
+  uint sm;
+
+  // set_sys_clock_khz(clkhz / 1000L, true);
+
+  gpio_init(PICO_DEFAULT_LED_PIN);
+  gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
+
+  // configure SMPS into power save mode
+  const uint PSU_PIN = 23;
+  gpio_init(PSU_PIN);
+  gpio_set_function(PSU_PIN, GPIO_FUNC_SIO);
+  gpio_set_dir(PSU_PIN, GPIO_OUT);
+  gpio_put(PSU_PIN, 1);
+
+  // configure PIO to act as quadrature oscillator
+  pio = pio0;
+  offset = pio_add_program(pio, &nco_program);
+  sm = pio_claim_unused_sm(pio, true);
+  nco_program_init(pio, sm, offset);
+  double tuned_frequency_Hz = 28074000;
+  double nco_frequency_Hz;
+  double offset_frequency_Hz;
+  uint32_t system_clock_rate;
+
+  sleep_ms(5000);
+
+  nco_frequency_Hz = nco_set_frequency(pio, sm, tuned_frequency_Hz, system_clock_rate);
+  offset_frequency_Hz = tuned_frequency_Hz - nco_frequency_Hz;
+
+  stdio_init_all();
+
+  multicore_launch_core1(core1_entry);
+
+  while (1) {
+    put_morse_str("CQ CQ CQ DE VU3CER TEST BEACON");
+    sleep_ms(1000);
+    printf("%lf\n", offset_frequency_Hz);
+  }
 }

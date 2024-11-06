@@ -7,13 +7,13 @@
 //
 //
 //  piodco.h - Digital controlled radio freq oscillator based on PIO.
-// 
+//
 //
 //  DESCRIPTION
 //
 //      The oscillator provides precise generation of any frequency ranging
 //  from 1 Hz to 33.333 MHz with tenth's of millihertz resolution (please note that
-//  this is relative resolution owing to the fact that the absolute accuracy of 
+//  this is relative resolution owing to the fact that the absolute accuracy of
 //  onboard crystal of pi pico is limited; the absoulte accuracy can be provided
 //  when using GPS reference option included).
 //      The DCO uses phase locked loop principle programmed in C and PIO asm.
@@ -36,7 +36,7 @@
 //      Raspberry Pi pico.
 //
 //  REVISION HISTORY
-// 
+//
 //      Rev 0.1   05 Nov 2023   Initial release
 //      Rev 0.2   18 Nov 2023
 //      Rev 1.0   10 Dec 2023   Improved frequency range (to ~33.333 MHz).
@@ -48,7 +48,7 @@
 //      MIT License (http://www.opensource.org/licenses/mit-license.php)
 //
 //  Copyright (c) 2023 by Roman Piksaykin
-//  
+//
 //  Permission is hereby granted, free of charge,to any person obtaining a copy
 //  of this software and associated documentation files (the Software), to deal
 //  in the Software without restriction,including without limitation the rights
@@ -79,34 +79,33 @@
 
 #include "../gpstime/GPStime.h"
 
-enum PioDcoMode
-{
-    eDCOMODE_IDLE = 0,          /* No output. */
-    eDCOMODE_GPS_COMPENSATED= 2 /* Internally compensated, if GPS available. */
+enum PioDcoMode {
+  eDCOMODE_IDLE = 0,           /* No output. */
+  eDCOMODE_GPS_COMPENSATED = 2 /* Internally compensated, if GPS available. */
 };
 
 typedef struct
 {
-    enum PioDcoMode _mode;      /* Running mode. */
+  enum PioDcoMode _mode; /* Running mode. */
 
-    PIO _pio;                   /* Worker PIO on this DCO. */
-    int _gpio;                  /* Pico' GPIO for DCO output. */
+  PIO _pio;  /* Worker PIO on this DCO. */
+  int _gpio; /* Pico' GPIO for DCO output. */
 
-    pio_sm_config _pio_sm;      /* Worker PIO parameter. */
-    int _ism;                   /* Index of state maschine. */
-    int _offset;                /* Worker PIO u-program offset. */
+  pio_sm_config _pio_sm; /* Worker PIO parameter. */
+  int _ism;              /* Index of state maschine. */
+  int _offset;           /* Worker PIO u-program offset. */
 
-    int32_t _frq_cycles_per_pi; /* CPU CLK cycles per PI. */
+  int32_t _frq_cycles_per_pi; /* CPU CLK cycles per PI. */
 
-    uint32_t _ui32_pioreg[8];   /* Shift register to PIO. */
+  uint32_t _ui32_pioreg[8]; /* Shift register to PIO. */
 
-    uint32_t _clkfreq_hz;       /* CPU CLK freq, Hz. */
+  uint32_t _clkfreq_hz; /* CPU CLK freq, Hz. */
 
-    GPStimeContext *_pGPStime;  /* Ptr to GPS time context. */
+  GPStimeContext *_pGPStime; /* Ptr to GPS time context. */
 
-    uint32_t _ui32_frq_hz;      /* Working freq, Hz. */
-    int32_t _ui32_frq_millihz;  /* Working freq additive shift, mHz. */
-    int _is_enabled;
+  uint32_t _ui32_frq_hz;     /* Working freq, Hz. */
+  int32_t _ui32_frq_millihz; /* Working freq additive shift, mHz. */
+  int _is_enabled;
 
 } PioDco;
 
@@ -119,7 +118,7 @@ void PioDCOStop(PioDco *pdco);
 
 void PioDCOSetMode(PioDco *pdco, enum PioDcoMode emode);
 
-void RAM (PioDCOWorker)(PioDco *pDCO);
-void RAM (PioDCOWorker2)(PioDco *pDCO);
+void RAM(PioDCOWorker)(PioDco *pDCO);
+void RAM(PioDCOWorker2)(PioDco *pDCO);
 
 #endif

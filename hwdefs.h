@@ -7,7 +7,7 @@
 //
 //
 //  hwdefs.h - Hardware related constant values for the project.
-// 
+//
 //
 //  DESCRIPTION
 //
@@ -17,7 +17,7 @@
 //      Raspberry Pi pico.
 //
 //  REVISION HISTORY
-// 
+//
 //      Rev 0.1   05 Nov 2023   Initial release
 //      Rev 0.2   18 Nov 2023
 //
@@ -28,7 +28,7 @@
 //      MIT License (http://www.opensource.org/licenses/mit-license.php)
 //
 //  Copyright (c) 2023 by Roman Piksaykin
-//  
+//
 //  Permission is hereby granted, free of charge,to any person obtaining a copy
 //  of this software and associated documentation files (the Software), to deal
 //  in the Software without restriction,including without limitation the rights
@@ -60,6 +60,6 @@
 ****************************************************************************/
 #define CLK_ADC_FREQ 48000000L                 /* pico's ADC clock is 48M. */
 #define GPIO(x) (x)                        /* pico GPIO number to address. */
-#define PLL_SYS_MHZ 270                                   /* system clock. */
+#define PLL_SYS_MHZ 300                                   /* system clock. */
 
 #endif

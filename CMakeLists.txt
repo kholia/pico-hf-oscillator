@@ -29,11 +29,12 @@ add_executable(pico-hf-oscillator-test)
 pico_generate_pio_header(pico-hf-oscillator-test ${CMAKE_CURRENT_LIST_DIR}/piodco/dco2.pio)
 
 target_sources(pico-hf-oscillator-test PUBLIC
-	      ${CMAKE_CURRENT_LIST_DIR}/lib/assert.c
+        ${CMAKE_CURRENT_LIST_DIR}/lib/assert.c
         ${CMAKE_CURRENT_LIST_DIR}/piodco/piodco.c
         ${CMAKE_CURRENT_LIST_DIR}/gpstime/GPStime.c
         ${CMAKE_CURRENT_LIST_DIR}/debug/logutils.c
-        ${CMAKE_CURRENT_LIST_DIR}/test.c
+        ${CMAKE_CURRENT_LIST_DIR}/test.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/nco.cpp
         ${CMAKE_CURRENT_LIST_DIR}/conswrapper.c
         ${CMAKE_CURRENT_LIST_DIR}/hfconsole/hfconsole.c
         )
