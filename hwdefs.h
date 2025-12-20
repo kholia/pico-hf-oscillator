@@ -58,7 +58,7 @@
 /****************************************************************************
 * RPi pico specific defs.
 ****************************************************************************/
-#define CLK_ADC_FREQ 48000000L                 /* pico's ADC clock is 48M. */
+// ADC functionality removed - CLK_ADC_FREQ no longer needed
 #define GPIO(x) (x)                        /* pico GPIO number to address. */
 #define PLL_SYS_MHZ 270                                   /* system clock. */
 

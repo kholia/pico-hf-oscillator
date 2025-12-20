@@ -7,7 +7,7 @@
 //
 //
 //  assert.h - Assertion functions for Raspberry Pi pico which use LED.
-// 
+//
 //
 //  DESCRIPTION
 //
@@ -18,7 +18,7 @@
 //      Raspberry Pi pico.
 //
 //  REVISION HISTORY
-// 
+//
 //      Rev 1.0   25 Sep 2022
 //  Production release.
 //
@@ -26,7 +26,7 @@
 //      MIT License (http://www.opensource.org/licenses/mit-license.php)
 //
 //  Copyright (c) 2022 by Roman Piksaykin
-//  
+//
 //  Permission is hereby granted, free of charge,to any person obtaining a copy
 //  of this software and associated documentation files (the Software), to deal
 //  in the Software without restriction,including without limitation the rights
@@ -48,6 +48,9 @@
 #include <stdbool.h>
 
 #include "pico/stdlib.h"
+
+// Default LED pin for Pico 2 W (wireless LED)
+#define PICO_DEFAULT_LED_PIN CYW43_WL_GPIO_LED_PIN
 
 void assert_(bool val);
 void assert_checkpoint(bool val, int n_blink);

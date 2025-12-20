@@ -14,7 +14,7 @@
 //      The oscillator provides precise generation of any frequency ranging
 //  from 1 Hz to 33.333 MHz with tenth's of millihertz resolution (please note that
 //  this is relative resolution owing to the fact that the absolute accuracy of
-//  onboard crystal of pi pico is limited; the absoulte accuracy can be provided
+//  onboard crystal of pi pico is limited; the absolute accuracy can be provided
 //  when using GPS reference option included).
 //      The DCO uses phase locked loop principle programmed in C and PIO asm.
 //      The DCO does *NOT* use any floating point operations - all time-critical

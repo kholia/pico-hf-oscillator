@@ -7,14 +7,14 @@
 //
 //
 //  dco2.pio - Digital controlled radio freq oscillator based on PIO.
-// 
+//
 //
 //  DESCRIPTION
 //
 //      The oscillator provides precise generation of any frequency ranging
 //  from 1 Hz to 33.333 MHz with tenth's of millihertz resolution (please note that
-//  this is relative resolution owing to the fact that the absolute accuracy of 
-//  onboard crystal of pi pico is limited; the absoulte accuracy can be provided
+//  this is relative resolution owing to the fact that the absolute accuracy of
+//  onboard crystal of pi pico is limited; the absolute accuracy can be provided
 //  when using GPS reference option included).
 //      The DCO uses phase locked loop principle programmed in C and PIO asm.
 //      The DCO does *NOT* use any floating point operations - all time-critical
@@ -36,7 +36,7 @@
 //      Raspberry Pi pico.
 //
 //  REVISION HISTORY
-// 
+//
 //      Rev 0.1   05 Nov 2023   Initial release
 //      Rev 0.2   18 Nov 2023
 //      Rev 1.0   10 Dec 2023   Improved frequency range (to ~33.333 MHz).
@@ -48,7 +48,7 @@
 //      MIT License (http://www.opensource.org/licenses/mit-license.php)
 //
 //  Copyright (c) 2023 by Roman Piksaykin
-//  
+//
 //  Permission is hereby granted, free of charge,to any person obtaining a copy
 //  of this software and associated documentation files (the Software), to deal
 //  in the Software without restriction,including without limitation the rights
@@ -75,7 +75,7 @@
 LOOP0:
     jmp x-- LOOP0
     set pins, 1
-    
+
     mov x, y        [1]
 LOOP1:
     jmp x-- LOOP1
@@ -99,15 +99,15 @@ LOOP3:
 static inline void dco_program_init(PIO pio, uint sm, uint offset, uint pin)
 {
     pio_sm_config c = dco_program_get_default_config(offset);
-   
+
     sm_config_set_out_shift(&c, true, true, 32);           // Autopull.
     sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_TX);
-    
+
     sm_config_set_out_pins(&c, pin, 1);
     pio_gpio_init(pio, pin);
 
     pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true);
-    
+
     sm_config_set_clkdiv_int_frac(&c, 1u, 0u);
 
     pio_sm_init(pio, sm, offset, &c);
